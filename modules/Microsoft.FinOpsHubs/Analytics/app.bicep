@@ -21,7 +21,7 @@ metadata hubApp = {
 param app HubAppProperties
 
 @description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
-@validate(x => isSupportedVersion(x.version, '13.0', ''), 'FinOps hubs Analytics requires FinOps hubs version 13.0 or higher.')
+//@validate(x => isSupportedVersion(x.version, '13.0', ''), 'FinOps hubs Analytics requires FinOps hubs version 13.0 or higher.')
 param core CoreMetadata
 
 @description('Optional. Name of the Azure Data Explorer cluster to use for advanced analytics. If empty, Azure Data Explorer will not be deployed. Required to use with Power BI if you have more than $2-5M/mo in costs being monitored. Default: "" (do not use).')

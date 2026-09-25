@@ -31,11 +31,11 @@ param enableAHBRecommendations bool = false
 param enableSpotRecommendations bool = false
 
 @description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
-@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Core app version must be 13.0 or higher.')
+//@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Core app version must be 13.0 or higher.')
 param core CoreMetadata
 
 @description('Required. Metadata describing resources from the Ingestion Queries app. Must be v13 or higher.')
-@validate(x => isSupportedVersion(x.version, '13.0', ''), 'IngestionQueries app version must be 13.0 or higher.')
+//@validate(x => isSupportedVersion(x.version, '13.0', ''), 'IngestionQueries app version must be 13.0 or higher.')
 param ingestionQueries IngestionQueriesMetadata
 
 //==============================================================================

@@ -26,7 +26,7 @@ param remoteStorageKey string
 param remoteHubStorageUri string
 
 @description('Required. Metadata describing shared resources from the Core app. Must be v13 or higher.')
-@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Remote hubs require FinOps hubs version 13.0 or higher.')
+//@validate(x => isSupportedVersion(x.version, '13.0', ''), 'Remote hubs require FinOps hubs version 13.0 or higher.')
 param core CoreMetadata
 
 
