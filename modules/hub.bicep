@@ -179,6 +179,12 @@ param virtualNetworkAddressPrefix string = '10.20.30.0/26'
 @description('Optional. Enable telemetry to track anonymous module usage trends, monitor for bugs, and improve future releases.')
 param enableDefaultTelemetry bool = true
 
+@description('TBD')
+param dnsZoneSubscriptionId string
+
+@description('TBD')
+param dnsZoneResourceGroupName string
+
 
 //==============================================================================
 // Variables
@@ -197,6 +203,8 @@ var hub = newHub(
   enablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
+  dnsZoneSubscriptionId,
+  dnsZoneResourceGroupName,
   enableNatGateway,
   virtualNetworkAddressPrefix,
   enableDefaultTelemetry

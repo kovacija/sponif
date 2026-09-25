@@ -21,9 +21,9 @@ var natGatewayName = '${hub.routing.networkName}-natgw'
 var natGatewayPipName = '${hub.routing.networkName}-natgw-pip'
 
 // Workaround https://github.com/Azure/bicep/issues/1853
-var finopsHubSubnetName = 'private-endpoint-subnet'
-var scriptSubnetName = 'script-subnet'
-var dataExplorerSubnetName = 'dataExplorer-subnet'
+var finopsHubSubnetName = 'pe-finops-10-230-23-192-28'
+var scriptSubnetName = 'script-finops-10-230-23-208-28'
+var dataExplorerSubnetName = 'adx-finops-10-230-23-224-27'
 
 // Azure Policy requires private mode subnets to set defaultOutboundAccess to false explicitly.
 var subnets = !hub.options.privateRouting ? [] : [
@@ -33,7 +33,7 @@ var subnets = !hub.options.privateRouting ? [] : [
       addressPrefix: cidrSubnet(hub.options.networkAddressPrefix, 28, 0)
       defaultOutboundAccess: !hub.options.natGateway
       networkSecurityGroup: {
-        id: nsg.id
+//        id: nsg.id
       }
       serviceEndpoints: [
         {
@@ -53,7 +53,7 @@ var subnets = !hub.options.privateRouting ? [] : [
         }
       } : {})
       networkSecurityGroup: {
-        id: nsg.id
+//        id: nsg.id
       }
       delegations: [
         {
@@ -76,7 +76,7 @@ var subnets = !hub.options.privateRouting ? [] : [
         }
       } : {})
       networkSecurityGroup: {
-        id: nsg.id
+//        id: nsg.id
       }
     }
   }
@@ -91,6 +91,7 @@ var subnets = !hub.options.privateRouting ? [] : [
 // Network
 //------------------------------------------------------------------------------
 
+/*
 resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.options.privateRouting) {
   name: nsgName
   location: hub.location
@@ -178,7 +179,9 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-11-01' = if (hub.opti
     ]
   }
 }
+*/
 
+/*
 resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.privateRouting) {
   name: hub.routing.networkName
   location: hub.location
@@ -205,6 +208,25 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
     name: dataExplorerSubnetName
   }
 }
+*/
+
+resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' existing = if (hub.options.privateRouting) {
+  name: 'vnet-pd-ca-euw-03'
+  scope: resourceGroup('rg-euw-pd-net-03')
+
+  resource finopsHubSubnet 'subnets' existing = {
+    name: 'pe-finops-10-230-23-192-28'
+  }
+
+    resource scriptSubnet 'subnets' existing = {
+    name: 'script-finops-10-230-23-208-28'
+  }
+
+    resource dataExplorerSubnet 'subnets' existing = {
+    name: 'adx-finops-10-230-23-224-27'
+  }
+
+}
 
 //------------------------------------------------------------------------------
 // NAT Gateway (provides explicit outbound for script-subnet + dataExplorer-subnet;
@@ -212,6 +234,7 @@ resource vNet 'Microsoft.Network/virtualNetworks@2023-11-01' = if (hub.options.p
 // implicit-outbound retirement)
 //------------------------------------------------------------------------------
 
+/*
 resource natGatewayPublicIp 'Microsoft.Network/publicIPAddresses@2023-11-01' = if (hub.options.natGateway) {
   name: natGatewayPipName
   location: hub.location
@@ -242,9 +265,13 @@ resource natGateway 'Microsoft.Network/natGateways@2023-11-01' = if (hub.options
   }
 }
 
+*/
 //------------------------------------------------------------------------------
 // Storage DNS zones
 //------------------------------------------------------------------------------
+
+
+/*
 
 // Required for the Azure portal and Storage Explorer
 resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
@@ -268,6 +295,15 @@ resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
     }
   }
 }
+*/
+
+resource blobPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  //name: 'privatelink.blob.${environment().suffixes.storage}'
+  name: 'privatelink.blob.core.windows.net'
+  scope: resourceGroup(hub.options.dnsZoneSubscriptionId, hub.options.dnsZoneResourceGroupName)
+}
+
+/*
 
 // Required for Power BI
 resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
@@ -291,6 +327,16 @@ resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (
     }
   }
 }
+*/
+
+resource dfsPrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  //name: 'privatelink.blob.${environment().suffixes.storage}'
+  name: 'privatelink.dfs.core.windows.net'
+  scope: resourceGroup(hub.options.dnsZoneSubscriptionId, hub.options.dnsZoneResourceGroupName)
+}
+
+/*
+
 
 // Required for deployment scripts
 resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
@@ -315,6 +361,19 @@ resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if 
   }
 }
 
+*/
+
+
+resource filePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  //name: 'privatelink.blob.${environment().suffixes.storage}'
+  name: 'privatelink.file.core.windows.net'
+  scope: resourceGroup(hub.options.dnsZoneSubscriptionId, hub.options.dnsZoneResourceGroupName)
+}
+
+/*
+
+
+
 // Required for Azure Data Explorer
 resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
   name: string(hub.routing.dnsZones.queue.name)
@@ -337,6 +396,18 @@ resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
     }
   }
 }
+
+*/
+
+
+resource queuePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  //name: 'privatelink.blob.${environment().suffixes.storage}'
+  name: 'privatelink.queue.core.windows.net'
+  scope: resourceGroup(hub.options.dnsZoneSubscriptionId, hub.options.dnsZoneResourceGroupName)
+}
+
+/*
+
 
 // Required for Azure Data Explorer
 resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if (hub.options.privateRouting) {
@@ -361,6 +432,20 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
   }
 }
 
+
+
+*/
+
+
+resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' existing = {
+  //name: 'privatelink.blob.${environment().suffixes.storage}'
+  name: 'privatelink.table.core.windows.net'
+  scope: resourceGroup(hub.options.dnsZoneSubscriptionId, hub.options.dnsZoneResourceGroupName)
+}
+
+
+
+
 //------------------------------------------------------------------------------
 // Script storage
 //------------------------------------------------------------------------------
@@ -368,7 +453,7 @@ resource tablePrivateDnsZone 'Microsoft.Network/privateDnsZones@2024-06-01' = if
 resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = if (hub.options.privateRouting) {
   name: hub.routing.scriptStorage
   dependsOn: [
-    vNet::scriptSubnet
+//    vNet::scriptSubnet
   ]
   location: hub.location
   sku: {
@@ -393,7 +478,7 @@ resource scriptStorageAccount 'Microsoft.Storage/storageAccounts@2022-09-01' = i
 resource scriptEndpoint 'Microsoft.Network/privateEndpoints@2023-11-01' = if (hub.options.privateRouting) {
   name: '${scriptStorageAccount.name}-file-ep'
   dependsOn: [
-    vNet::scriptSubnet
+//    vNet::scriptSubnet
   ]
   location: hub.location
   tags: getHubTags(hub, 'Microsoft.Network/privateEndpoints')

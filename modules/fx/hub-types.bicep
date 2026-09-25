@@ -74,6 +74,8 @@ type HubRoutingProperties = {
     keyVaultSku: 'KeyVault SKU. Allowed values: "standard", "premium".'
     keyVaultEnablePurgeProtection: 'Indicates whether purge protection is enabled for the Key Vault. When enabled, deleted Key Vault and its secrets cannot be permanently deleted until the retention period expires, which is required for compliance in some environments.'
     networkAddressPrefix: 'Address prefix for the FinOps hub isolated virtual network, if private network routing is enabled.'
+    dnsZonesubscriptionId: 'Subscription ID for the DNS zones used for private routing. Required if private routing is enabled.'
+    dnsZoneResourceGroupName: 'Resource group name for the DNS zones used for private routing. Required if private routing is enabled.'
     natGateway: 'Indicates whether a NAT Gateway should be deployed for controlled outbound internet access. When enabled, the script and Data Explorer subnets route outbound traffic through the NAT Gateway.'
     privateRouting: 'Indicates whether private network routing is enabled.'
     publisherIsolation: 'Indicates whether FinOps hub resources should be separated by publisher for advanced security.'
@@ -99,6 +101,8 @@ type HubProperties = {
     keyVaultSku: string
     keyVaultEnablePurgeProtection: bool
     networkAddressPrefix: string
+    dnsZoneSubscriptionId: string
+    dnsZoneResourceGroupName: string
     natGateway: bool
     privateRouting: bool
     publisherIsolation: bool
@@ -196,6 +200,8 @@ func newHubInternal(
   keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
+  dnsZoneSubscriptionId string,
+  dnsZoneResourceGroupName string,
   enableNatGateway bool,
   networkName string,
   networkAddressPrefix string,
@@ -216,6 +222,8 @@ func newHubInternal(
     keyVaultSku: keyVaultSku
     keyVaultEnablePurgeProtection: keyVaultEnablePurgeProtection
     networkAddressPrefix: networkAddressPrefix
+    dnsZoneSubscriptionId: dnsZoneSubscriptionId
+    dnsZoneResourceGroupName: dnsZoneResourceGroupName
     natGateway: !enablePublicAccess && enableNatGateway
     privateRouting: !enablePublicAccess
     publisherIsolation: false  // TODO: Expose publisher isolation option
@@ -258,6 +266,8 @@ func newHub(
   keyVaultEnablePurgeProtection bool,
   enableInfrastructureEncryption bool,
   enablePublicAccess bool,
+  dnsZoneSubscriptionId string,
+  dnsZoneResourceGroupName string,
   enableNatGateway bool,
   networkAddressPrefix string,
   isTelemetryEnabled bool,
@@ -273,6 +283,8 @@ func newHub(
   keyVaultEnablePurgeProtection,
   enableInfrastructureEncryption,
   enablePublicAccess,
+  dnsZoneSubscriptionId,
+  dnsZoneResourceGroupName,
   enableNatGateway,
   '${safeStorageName(name)}-vnet-${location}',    // networkName, cSpell:ignore vnet
   networkAddressPrefix,
